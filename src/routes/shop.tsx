@@ -10,7 +10,7 @@ import { PageHero } from "@/components/site/PageShell";
 import { ProductCard } from "@/components/site/ProductCard";
 import { categories, products } from "@/data/catalog";
 
-type SearchParams = { category?: string };
+type SearchParams = { category?: string | undefined };
 
 export const Route = createFileRoute("/shop")({
   validateSearch: (search: Record<string, unknown>): SearchParams => ({

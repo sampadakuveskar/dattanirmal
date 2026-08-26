@@ -36,19 +36,19 @@ export function Footer() {
     <footer className="mt-24 bg-secondary text-secondary-foreground">
       <div className="container-page grid gap-10 py-14 md:grid-cols-4">
         <div>
-          <p className="font-serif text-2xl">Konkan Kokani</p>
+          <p className="font-serif text-2xl">DattaNirmal</p>
           <p className="mt-3 max-w-xs text-sm text-secondary-foreground/75">
             Devgad Alphonso mangoes and traditional Kokani products, sourced directly from farms across coastal
             Maharashtra.
           </p>
           <div className="mt-5 flex gap-3">
-            <a href="https://instagram.com" aria-label="Instagram" className="rounded-full border border-secondary-foreground/25 p-2.5 transition-colors hover:bg-secondary-foreground/10">
+              <a href="https://www.instagram.com/_datta_nirmal_/" aria-label="Instagram" className="rounded-full border border-secondary-foreground/25 p-2.5 transition-colors hover:bg-secondary-foreground/10">
               <Instagram className="size-4" />
             </a>
             <a href="https://facebook.com" aria-label="Facebook" className="rounded-full border border-secondary-foreground/25 p-2.5 transition-colors hover:bg-secondary-foreground/10">
               <Facebook className="size-4" />
             </a>
-            <a href="https://wa.me/919000000000" aria-label="WhatsApp" className="rounded-full border border-secondary-foreground/25 p-2.5 transition-colors hover:bg-secondary-foreground/10">
+            <a href="https://wa.me/919284821855" aria-label="WhatsApp" className="rounded-full border border-secondary-foreground/25 p-2.5 transition-colors hover:bg-secondary-foreground/10">
               <MessageCircle className="size-4" />
             </a>
           </div>
@@ -70,15 +70,15 @@ export function Footer() {
         ))}
       </div>
 
-      <div className="border-t border-secondary-foreground/15">
+    <div className="border-t border-secondary-foreground/15">
         <div className="container-page flex flex-col gap-3 py-5 text-xs text-secondary-foreground/70 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} Konkan Kokani Farms. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} DattaNirmal Farms. All rights reserved.</p>
           <p className="flex flex-wrap items-center gap-4">
             <a href="tel:+919000000000" className="inline-flex items-center gap-1.5">
-              <Phone className="size-3.5" /> +91 90000 00000
+              <Phone className="size-3.5" /> +91 9284821855
             </a>
-            <a href="mailto:hello@konkankokani.in" className="inline-flex items-center gap-1.5">
-              <Mail className="size-3.5" /> hello@konkankokani.in
+            <a href="mailto:shubhamprabhu5909@gmail.com" className="inline-flex items-center gap-1.5">
+              <Mail className="size-3.5" /> shubhamprabhu5909@gmail.com
             </a>
           </p>
         </div>

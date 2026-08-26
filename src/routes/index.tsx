@@ -95,7 +95,7 @@ function Home() {
             />
             <div className="overflow-hidden rounded-[2rem] border border-border shadow-[var(--shadow-lift)]">
               <img
-                src={images.hero}
+                src={images.hero4}
                 alt="Freshly harvested Devgad Alphonso mangoes in a basket with mango leaves"
                 width={1600}
                 height={1200}
@@ -239,7 +239,7 @@ function Home() {
       {/* Farms strip */}
       <section className="container-page">
         <div className="grid gap-4 sm:grid-cols-3">
-          {[images.farm, images.hero, images.kokani].map((src, i) => (
+          {[images.farm, images.hero, images.hero5].map((src, i) => (
             <img
               key={i}
               src={src}

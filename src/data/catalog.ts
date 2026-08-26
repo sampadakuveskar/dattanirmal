@@ -1,6 +1,20 @@
 import hero from "@/assets/hero-mangoes.jpg";
 import farm from "@/assets/farm-harvest.jpg";
+import farm1 from "@/assets/post_1_farm.png";
+import farm2 from "@/assets/post_2_farm.png";
 import kokani from "@/assets/kokani-products.jpg";
+import kokumSyrup from "@/assets/kokum-syrup.jpg";
+import kokumaagal from "@/assets/kokam-aagal.png";
+import cashew from "@/assets/cashew.png";
+import mangopickel from "@/assets/mango_pickel.png";
+import malvanimasala from "@/assets/malvani_masala.png";
+import aamras from "@/assets/aamras.png";
+import jkchips from "@/assets/jf_chips.jpg";
+import hero1 from "@/assets/hero1.jpg";
+import hero2 from "@/assets/hero2.jpg";
+import hero3 from "@/assets/hero3.jpg";
+import hero4 from "@/assets/hero4.png";
+import hero5 from "@/assets/hero5.png";
 
 export type Product = {
   slug: string;
@@ -20,7 +34,7 @@ export type Product = {
   seasonal?: boolean;
 };
 
-export const images = { hero, farm, kokani };
+export const images = { hero, hero1, hero2, hero3, hero4, hero5, farm, farm1, farm2, kokani, kokumSyrup, kokumaagal, cashew, mangopickel, malvanimasala, aamras, jkchips };
 
 export const categories = [
   { slug: "devgad-mangoes", name: "Devgad Mangoes", blurb: "Naturally ripened Alphonso, boxed to order." },
@@ -29,7 +43,7 @@ export const categories = [
   { slug: "masalas", name: "Masalas", blurb: "Kokani spice blends from family recipes." },
   { slug: "dry-fruits", name: "Dry Fruits", blurb: "Konkan cashews, whole and roasted." },
   { slug: "snacks", name: "Snacks", blurb: "Jackfruit chips, aam papad and more." },
-  { slug: "coconut", name: "Coconut Products", blurb: "Cold-pressed oil and coconut staples." },
+  // { slug: "coconut", name: "Coconut Products", blurb: "Cold-pressed oil and coconut staples." },
   { slug: "traditional", name: "Traditional Foods", blurb: "Pantry classics from Konkan kitchens." },
 ];
 
@@ -55,7 +69,7 @@ export const products: Product[] = [
     rating: 4.9,
     reviews: 212,
     stock: 24,
-    image: hero,
+    image: hero1,
     seasonal: true,
   }),
   p({
@@ -76,7 +90,7 @@ export const products: Product[] = [
     rating: 4.8,
     reviews: 148,
     stock: 12,
-    image: hero,
+    image: hero2,
     seasonal: true,
   }),
   p({
@@ -94,27 +108,27 @@ export const products: Product[] = [
     rating: 4.7,
     reviews: 96,
     stock: 8,
-    image: hero,
+    image: hero3,
     seasonal: true,
   }),
-  p({
-    slug: "alphonso-gift-box",
-    name: "Alphonso Mango Gift Box",
-    category: "devgad-mangoes",
-    type: "mango",
-    shortDescription: "Presentation box with a handwritten note option.",
-    description:
-      "A gifting box with a rigid outer carton, mango leaf motif sleeve and space for a personal note. Delivered directly to your recipient.",
-    weight: "6 pcs (approx. 1.4 kg)",
-    variants: [{ label: "6 pcs", price: 1650 }],
-    price: 1650,
-    mrp: 1950,
-    rating: 4.9,
-    reviews: 74,
-    stock: 3,
-    image: hero,
-    seasonal: true,
-  }),
+  // p({
+  //   slug: "alphonso-gift-box",
+  //   name: "Alphonso Mango Gift Box",
+  //   category: "devgad-mangoes",
+  //   type: "mango",
+  //   shortDescription: "Presentation box with a handwritten note option.",
+  //   description:
+  //     "A gifting box with a rigid outer carton, mango leaf motif sleeve and space for a personal note. Delivered directly to your recipient.",
+  //   weight: "6 pcs (approx. 1.4 kg)",
+  //   variants: [{ label: "6 pcs", price: 1650 }],
+  //   price: 1650,
+  //   mrp: 1950,
+  //   rating: 4.9,
+  //   reviews: 74,
+  //   stock: 3,
+  //   image: hero,
+  //   seasonal: true,
+  // }),
   p({
     slug: "kokum-syrup",
     name: "Kokum Syrup",
@@ -132,7 +146,7 @@ export const products: Product[] = [
     rating: 4.6,
     reviews: 58,
     stock: 40,
-    image: kokani,
+    image: kokumSyrup,
   }),
   p({
     slug: "kokum-agal",
@@ -148,24 +162,24 @@ export const products: Product[] = [
     rating: 4.5,
     reviews: 41,
     stock: 33,
-    image: kokani,
+    image: kokumaagal,
   }),
-  p({
-    slug: "sol-kadhi-mix",
-    name: "Sol Kadhi Mix",
-    category: "kokum",
-    type: "kokani",
-    shortDescription: "Instant mix for the classic pink kokum-coconut drink.",
-    description: "Blend of kokum, coconut and gentle spice. Just add water or coconut milk for a quick sol kadhi.",
-    weight: "200 g",
-    variants: [{ label: "200 g", price: 180 }],
-    price: 180,
-    mrp: 220,
-    rating: 4.4,
-    reviews: 37,
-    stock: 5,
-    image: kokani,
-  }),
+  // p({
+  //   slug: "sol-kadhi-mix",
+  //   name: "Sol Kadhi Mix",
+  //   category: "kokum",
+  //   type: "kokani",
+  //   shortDescription: "Instant mix for the classic pink kokum-coconut drink.",
+  //   description: "Blend of kokum, coconut and gentle spice. Just add water or coconut milk for a quick sol kadhi.",
+  //   weight: "200 g",
+  //   variants: [{ label: "200 g", price: 180 }],
+  //   price: 180,
+  //   mrp: 220,
+  //   rating: 4.4,
+  //   reviews: 37,
+  //   stock: 5,
+  //   image: kokani,
+  // }),
   p({
     slug: "devgad-cashews",
     name: "Devgad Cashews (W240)",
@@ -184,7 +198,7 @@ export const products: Product[] = [
     rating: 4.8,
     reviews: 121,
     stock: 60,
-    image: kokani,
+    image: cashew,
   }),
   p({
     slug: "authentic-mango-pickle",
@@ -200,7 +214,7 @@ export const products: Product[] = [
     rating: 4.7,
     reviews: 88,
     stock: 27,
-    image: kokani,
+    image: mangopickel,
   }),
   p({
     slug: "kokani-masala",
@@ -216,15 +230,15 @@ export const products: Product[] = [
     rating: 4.6,
     reviews: 52,
     stock: 0,
-    image: kokani,
+    image: malvanimasala,
   }),
   p({
-    slug: "aam-papad",
-    name: "Alphonso Aam Papad",
+    slug: "aamras",
+    name: "Devgad Alphonso Aamras",
     category: "snacks",
     type: "kokani",
-    shortDescription: "Sun-dried Alphonso pulp sheets, no added colour.",
-    description: "Layers of Alphonso pulp dried in the sun, sliced and packed. A seasonal favourite for children and travel.",
+    shortDescription: "Rich and naturally sweet Devgad Alphonso Aamras.",
+    description: "Authentic Devgad Alphonso mango pulp made from naturally sweet, aromatic Ratnagiri–Devgad Alphonso mangoes. Rich, smooth, and perfect with puri, chapati, or as a refreshing dessert.",
     weight: "300 g",
     variants: [{ label: "300 g", price: 250 }],
     price: 250,
@@ -232,7 +246,7 @@ export const products: Product[] = [
     rating: 4.5,
     reviews: 64,
     stock: 18,
-    image: kokani,
+    image: aamras,
   }),
   p({
     slug: "jackfruit-chips",
@@ -248,27 +262,26 @@ export const products: Product[] = [
     rating: 4.4,
     reviews: 45,
     stock: 22,
-    image: kokani,
+    image: jkchips,
   }),
-  p({
-    slug: "cold-pressed-coconut-oil",
-    name: "Cold Pressed Coconut Oil",
-    category: "coconut",
-    type: "kokani",
-    shortDescription: "Wood-pressed coconut oil for cooking and hair care.",
-    description: "Cold-pressed from sun-dried Konkan copra. Unrefined, with a natural coconut aroma.",
-    weight: "1 litre",
-    variants: [
-      { label: "500 ml", price: 340 },
-      { label: "1 litre", price: 620 },
-    ],
-    price: 620,
-    mrp: 720,
-    rating: 4.7,
-    reviews: 73,
-    stock: 31,
-    image: kokani,
-  }),
+//   p({
+//  slug: "kokani-naral",
+//   name: "Kokani Naral",
+//   category: "coconut",
+//   type: "kokani",
+//   shortDescription: "Fresh and naturally sweet Kokani coconut.",
+//   description: "Fresh Kokani coconut with a naturally sweet taste and authentic Konkan flavor.",
+//   weight: "1 piece",
+//   variants: [
+//     { label: "1 Naral", price: 25 },
+//   ],
+//   price: 25,
+//   mrp: 30,
+//   rating: 4.5,
+//   reviews: 52,
+//   stock: 20,
+//   image: kokani,
+//   }),
 ];
 
 export const getProduct = (slug: string) => products.find((x) => x.slug === slug);

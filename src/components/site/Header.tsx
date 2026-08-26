@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
 import { supabase } from "@/integrations/supabase/client";
+import logo from "@/assets/logo.png";
 
 const nav = [
   { to: "/", label: "Home" },
@@ -17,16 +18,12 @@ const nav = [
 
 function Logo() {
   return (
-    <Link to="/" className="flex items-center gap-2.5" aria-label="Konkan Kokani Farms home">
-      <span className="grid size-10 place-items-center rounded-full bg-[image:var(--gradient-sun)] font-serif text-lg font-bold text-secondary-foreground">
-        K
-      </span>
-      <span className="leading-tight">
-        <span className="block font-serif text-lg font-semibold">Konkan Kokani</span>
-        <span className="block text-[0.65rem] uppercase tracking-[0.22em] text-muted-foreground">
-          Farm to Home
-        </span>
-      </span>
+    <Link to="/" aria-label="DattaNirmal Farms home">
+      <img
+        src={logo}
+        alt="DattaNirmal Farms"
+        className="h-35 w-auto object-contain"
+      />
     </Link>
   );
 }

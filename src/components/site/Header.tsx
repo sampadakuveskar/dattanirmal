@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { Menu, Search, ShoppingBag, Heart, User, Home, Store } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
+import { supabase } from "@/integrations/supabase/client";
 
 const nav = [
   { to: "/", label: "Home" },

@@ -97,7 +97,9 @@ export function Header() {
             </Button>
             {!signedIn && (
               <Button asChild size="sm" className="hidden sm:inline-flex">
-                <Link to="/auth">Sign in</Link>
+                <Link to="/auth" search={{ redirect: "/account" }}>
+                  Sign in
+                </Link>
               </Button>
             )}
             <Button variant="ghost" size="icon" asChild aria-label="Account" className="hidden sm:inline-flex">

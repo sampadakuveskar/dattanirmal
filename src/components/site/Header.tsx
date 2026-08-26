@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { Menu, Search, ShoppingBag, Heart, User, Home, Store } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
+import { supabase } from "@/integrations/supabase/client";
 
 const nav = [
   { to: "/", label: "Home" },
@@ -33,6 +34,11 @@ function Logo() {
 export function Header() {
   const { count, wishlist } = useCart();
   const [open, setOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setSignedIn(Boolean(data.user)));
+  }, []);
 
   return (
     <>
@@ -89,6 +95,13 @@ export function Header() {
                 <Search />
               </Link>
             </Button>
+            {!signedIn && (
+              <Button asChild size="sm" className="hidden sm:inline-flex">
+                <Link to="/auth" search={{ redirect: "/account" }}>
+                  Sign in
+                </Link>
+              </Button>
+            )}
             <Button variant="ghost" size="icon" asChild aria-label="Account" className="hidden sm:inline-flex">
               <Link to="/account">
                 <User />

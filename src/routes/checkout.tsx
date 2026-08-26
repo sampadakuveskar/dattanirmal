@@ -1,6 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Check } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +10,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { PageHero } from "@/components/site/PageShell";
 import { useCart } from "@/lib/cart";
 import { inr } from "@/data/catalog";
+import { createOrder } from "@/lib/orders.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -25,11 +29,93 @@ export const Route = createFileRoute("/checkout")({
 
 const steps = ["Customer", "Address", "Delivery", "Payment", "Confirmation"];
 
+type Delivery = "standard" | "express";
+type Payment = "upi" | "card" | "netbanking" | "cod";
+
+const emptyForm = {
+  fullName: "",
+  email: "",
+  phone: "",
+  address1: "",
+  address2: "",
+  city: "",
+  state: "",
+  pincode: "",
+};
+
 function Checkout() {
   const { lines, subtotal, clear } = useCart();
+  const navigate = useNavigate();
+  const placeOrder = useServerFn(createOrder);
+
   const [step, setStep] = useState(0);
-  const [payment, setPayment] = useState("upi");
-  const shipping = subtotal > 2500 || subtotal === 0 ? 0 : 120;
+  const [form, setForm] = useState(emptyForm);
+  const [delivery, setDelivery] = useState<Delivery>("standard");
+  const [payment, setPayment] = useState<Payment>("upi");
+  const [placing, setPlacing] = useState(false);
+  const [placed, setPlaced] = useState<{ orderNumber: string; total: number } | null>(null);
+
+  const shipping = delivery === "express" ? 350 : subtotal > 2500 || subtotal === 0 ? 0 : 120;
+  const set = (key: keyof typeof emptyForm) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  function validForStep(s: number): boolean {
+    if (s === 0)
+      return (
+        form.fullName.trim().length >= 2 &&
+        /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email) &&
+        form.phone.trim().length >= 6
+      );
+    if (s === 1)
+      return (
+        form.address1.trim().length >= 3 &&
+        form.city.trim().length >= 2 &&
+        form.state.trim().length >= 2 &&
+        form.pincode.trim().length >= 4
+      );
+    return true;
+  }
+
+  async function submit() {
+    if (placing) return;
+    setPlacing(true);
+    try {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) {
+        toast.info("Please sign in to place your order");
+        navigate({ to: "/auth", search: { redirect: "/checkout" } });
+        return;
+      }
+      const result = await placeOrder({
+        data: {
+          fullName: form.fullName.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim(),
+          address1: form.address1.trim(),
+          address2: form.address2.trim(),
+          city: form.city.trim(),
+          state: form.state.trim(),
+          pincode: form.pincode.trim(),
+          deliveryMethod: delivery,
+          paymentMethod: payment,
+          items: lines.map((l) => ({
+            slug: l.slug,
+            name: l.name,
+            variant: l.variant,
+            price: l.price,
+            qty: l.qty,
+          })),
+        },
+      });
+      setPlaced(result);
+      clear();
+      setStep(4);
+    } catch {
+      toast.error("Could not place your order. Please try again.");
+    } finally {
+      setPlacing(false);
+    }
+  }
 
   return (
     <>
@@ -56,29 +142,25 @@ function Checkout() {
 
           <div className="surface-card space-y-5 p-7">
             {step === 0 && (
-              <Fields
-                fields={[
-                  ["fullname", "Full name", "text"],
-                  ["email", "Email", "email"],
-                  ["phone", "Phone", "tel"],
-                ]}
-              />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field id="fullname" label="Full name" value={form.fullName} onChange={set("fullName")} />
+                <Field id="email" label="Email" type="email" value={form.email} onChange={set("email")} />
+                <Field id="phone" label="Phone" type="tel" value={form.phone} onChange={set("phone")} />
+              </div>
             )}
             {step === 1 && (
-              <Fields
-                fields={[
-                  ["address1", "Address line 1", "text"],
-                  ["address2", "Address line 2", "text"],
-                  ["city", "City", "text"],
-                  ["state", "State", "text"],
-                  ["pin", "PIN code", "text"],
-                ]}
-              />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field id="address1" label="Address line 1" value={form.address1} onChange={set("address1")} />
+                <Field id="address2" label="Address line 2 (optional)" value={form.address2} onChange={set("address2")} />
+                <Field id="city" label="City" value={form.city} onChange={set("city")} />
+                <Field id="state" label="State" value={form.state} onChange={set("state")} />
+                <Field id="pin" label="PIN code" value={form.pincode} onChange={set("pincode")} />
+              </div>
             )}
             {step === 2 && (
-              <RadioGroup defaultValue="standard" className="space-y-3">
+              <RadioGroup value={delivery} onValueChange={(v) => setDelivery(v as Delivery)} className="space-y-3">
                 {[
-                  ["standard", "Standard delivery — 3-4 days", "Free over ₹2,500"],
+                  ["standard", "Standard delivery — 3-4 days", subtotal > 2500 ? "Free" : "₹120 · free over ₹2,500"],
                   ["express", "Express delivery — 1-2 days", "₹350"],
                 ].map(([v, t, s]) => (
                   <Label key={v} htmlFor={v} className="flex items-center gap-3 rounded-xl border border-border p-4 font-normal">
@@ -93,7 +175,7 @@ function Checkout() {
             )}
             {step === 3 && (
               <>
-                <RadioGroup value={payment} onValueChange={setPayment} className="space-y-3">
+                <RadioGroup value={payment} onValueChange={(v) => setPayment(v as Payment)} className="space-y-3">
                   {[
                     ["upi", "UPI"],
                     ["card", "Credit / Debit Card"],
@@ -112,14 +194,15 @@ function Checkout() {
                 </p>
               </>
             )}
-            {step === 4 && (
+            {step === 4 && placed && (
               <div className="py-6 text-center">
                 <div className="mx-auto grid size-14 place-items-center rounded-full bg-[image:var(--gradient-sun)]">
                   <Check className="size-7 text-secondary" aria-hidden />
                 </div>
                 <h2 className="mt-4 font-serif text-2xl">Order placed</h2>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  A confirmation will be sent by email and WhatsApp once payments are connected.
+                  Order <span className="font-medium text-foreground">#{placed.orderNumber}</span> ·{" "}
+                  {inr(placed.total)} — track it anytime from your account.
                 </p>
                 <Button asChild className="mt-6">
                   <Link to="/account">View order status</Link>
@@ -133,13 +216,10 @@ function Checkout() {
                   Back
                 </Button>
                 <Button
-                  onClick={() => {
-                    if (step === 3) clear();
-                    setStep((s) => s + 1);
-                  }}
-                  disabled={lines.length === 0 && step === 0}
+                  onClick={() => (step === 3 ? submit() : setStep((s) => s + 1))}
+                  disabled={(lines.length === 0 && step === 0) || !validForStep(step) || placing}
                 >
-                  {step === 3 ? "Place order" : "Continue"}
+                  {step === 3 ? (placing ? "Placing order…" : "Place order") : "Continue"}
                 </Button>
               </div>
             )}
@@ -151,14 +231,20 @@ function Checkout() {
           {lines.length === 0 ? (
             <p className="text-muted-foreground">No items in cart.</p>
           ) : (
-            lines.map((l) => (
-              <p key={`${l.slug}-${l.variant}`} className="flex justify-between gap-4">
-                <span className="text-muted-foreground">
-                  {l.name} × {l.qty}
-                </span>
-                <span>{inr(l.price * l.qty)}</span>
+            <>
+              {lines.map((l) => (
+                <p key={`${l.slug}-${l.variant}`} className="flex justify-between gap-4">
+                  <span className="text-muted-foreground">
+                    {l.name} × {l.qty}
+                  </span>
+                  <span>{inr(l.price * l.qty)}</span>
+                </p>
+              ))}
+              <p className="flex justify-between text-muted-foreground">
+                <span>Delivery</span>
+                <span>{shipping === 0 ? "Free" : inr(shipping)}</span>
               </p>
-            ))
+            </>
           )}
           <p className="flex justify-between border-t border-border pt-3 font-serif text-lg font-semibold">
             <span>Total</span>
@@ -170,15 +256,23 @@ function Checkout() {
   );
 }
 
-function Fields({ fields }: { fields: [string, string, string][] }) {
+function Field({
+  id,
+  label,
+  type = "text",
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      {fields.map(([id, label, type]) => (
-        <div key={id}>
-          <Label htmlFor={id}>{label}</Label>
-          <Input id={id} name={id} type={type} className="mt-2" />
-        </div>
-      ))}
+    <div>
+      <Label htmlFor={id}>{label}</Label>
+      <Input id={id} name={id} type={type} value={value} onChange={onChange} className="mt-2" />
     </div>
   );
 }

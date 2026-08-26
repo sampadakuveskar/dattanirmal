@@ -87,15 +87,6 @@ function Account() {
         description={profile.data?.email ?? "Your orders, profile and saved items."}
       />
       <div className="container-page py-12">
-        {profile.data?.isAdmin && (
-          <div className="surface-card mb-8 flex flex-wrap items-center justify-between gap-3 p-5">
-            <p className="text-sm font-medium">You have admin access to this store.</p>
-            <Button asChild size="sm">
-              <Link to="/admin">Open admin panel</Link>
-            </Button>
-          </div>
-        )}
-
         <Tabs defaultValue="orders">
           <TabsList className="flex-wrap">
             <TabsTrigger value="orders">My Orders</TabsTrigger>

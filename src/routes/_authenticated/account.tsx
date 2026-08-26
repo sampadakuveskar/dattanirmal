@@ -88,11 +88,18 @@ function Account() {
       />
       <div className="container-page py-12">
         <Tabs defaultValue="orders">
-          <TabsList className="flex-wrap">
-            <TabsTrigger value="orders">My Orders</TabsTrigger>
-            <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-          </TabsList>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <TabsList className="flex-wrap">
+              <TabsTrigger value="orders">My Orders</TabsTrigger>
+              <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
+              <TabsTrigger value="profile">Profile</TabsTrigger>
+            </TabsList>
+            {profile.data?.isAdmin && (
+              <Button asChild variant="outline" size="sm">
+                <Link to="/admin">Admin Panel</Link>
+              </Button>
+            )}
+          </div>
 
           <TabsContent value="orders" className="space-y-5 py-8">
             {orders.isLoading && <p className="text-sm text-muted-foreground">Loading your orders…</p>}

@@ -91,14 +91,14 @@ function Contact() {
               </p>
               <p className="flex items-center gap-3">
                 <Phone className="size-4 text-accent" aria-hidden />
-                <a href="tel:+919000000000">+91 90000 00000</a>
+                <a href="tel:+919284821855">+91 9284821855</a>
               </p>
               <p className="flex items-center gap-3">
                 <Mail className="size-4 text-accent" aria-hidden />
-                <a href="mailto:hello@konkankokani.in">hello@konkankokani.in</a>
+                <a href="mailto:shubhamprabhu5909@gmail.com">shubhamprabhu5909@gmail.com</a>
               </p>
               <Button asChild variant="secondary" className="w-full">
-                <a href="https://wa.me/919000000000">
+                <a href="https://wa.me/919284821855">
                   <MessageCircle className="size-4" /> Chat With Us
                 </a>
               </Button>

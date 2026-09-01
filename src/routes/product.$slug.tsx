@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Heart, Minus, Plus, Share2, Star, Truck, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ProductCard } from "@/components/site/ProductCard";
 import { useCart } from "@/lib/cart";
-import { getProduct, inr, products, reviews, stockLabel } from "@/data/catalog";
+import { getProduct, inr, reviews, stockLabel } from "@/data/catalog";
+import { useLiveCatalog, useLiveProducts, mergeProduct } from "@/lib/live-products";
 
 export const Route = createFileRoute("/product/$slug")({
   loader: ({ params }) => {
@@ -35,10 +36,15 @@ export const Route = createFileRoute("/product/$slug")({
 });
 
 function ProductPage() {
-  const product = Route.useLoaderData();
+  const base = Route.useLoaderData();
+  const { map } = useLiveProducts();
+  const products = useLiveCatalog();
+  const product = useMemo(() => mergeProduct(base, map.get(base.slug)), [base, map]);
   const navigate = useNavigate();
   const { add, toggleWishlist, wishlist } = useCart();
-  const [variant, setVariant] = useState(product.variants[0]!);
+  const [variantLabel, setVariantLabel] = useState(base.variants[0]!.label);
+  const variant = product.variants.find((v) => v.label === variantLabel) ?? product.variants[0]!;
+  const setVariant = (v: { label: string; price: number }) => setVariantLabel(v.label);
   const [qty, setQty] = useState(1);
   const [pin, setPin] = useState("");
   const [pinResult, setPinResult] = useState<string | null>(null);

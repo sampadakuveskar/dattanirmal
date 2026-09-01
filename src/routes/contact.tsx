@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { submitEnquiry } from "@/lib/enquiries.functions";
 import { z } from "zod";
 import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { toast } from "sonner";
@@ -37,6 +39,8 @@ const schema = z.object({
 
 function Contact() {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [sending, setSending] = useState(false);
+  const sendEnquiry = useServerFn(submitEnquiry);
 
   return (
     <>
@@ -46,9 +50,10 @@ function Contact() {
           <form
             className="surface-card space-y-5 p-7"
             noValidate
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              const fd = new FormData(e.currentTarget);
+              const form = e.currentTarget;
+              const fd = new FormData(form);
               const parsed = schema.safeParse(Object.fromEntries(fd));
               if (!parsed.success) {
                 const next: Record<string, string> = {};
@@ -57,8 +62,24 @@ function Contact() {
                 return;
               }
               setErrors({});
-              e.currentTarget.reset();
-              toast.success("Thanks — we'll get back to you within one working day.");
+              setSending(true);
+              try {
+                await sendEnquiry({
+                  data: {
+                    name: parsed.data.name,
+                    email: parsed.data.email,
+                    phone: parsed.data.phone ?? "",
+                    subject: parsed.data.subject,
+                    message: parsed.data.message,
+                  },
+                });
+                form.reset();
+                toast.success("Thanks — we'll get back to you within one working day.");
+              } catch {
+                toast.error("Could not send your message. Please call or WhatsApp us on +91 9284821855.");
+              } finally {
+                setSending(false);
+              }
             }}
           >
             {[
@@ -78,8 +99,8 @@ function Contact() {
               <Textarea id="message" name="message" rows={5} className="mt-2" aria-invalid={Boolean(errors['message'])} />
               {errors['message'] && <p className="mt-1.5 text-xs text-destructive">{errors['message']}</p>}
             </div>
-            <Button type="submit" size="lg">
-              Send message
+            <Button type="submit" size="lg" disabled={sending}>
+              {sending ? "Sending…" : "Send message"}
             </Button>
           </form>
 

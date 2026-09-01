@@ -8,7 +8,8 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageHero } from "@/components/site/PageShell";
 import { ProductCard } from "@/components/site/ProductCard";
-import { categories, products } from "@/data/catalog";
+import { categories } from "@/data/catalog";
+import { useLiveCatalog } from "@/lib/live-products";
 
 type SearchParams = { category?: string | undefined };
 
@@ -40,6 +41,7 @@ function Shop() {
   const [maxPrice, setMaxPrice] = useState(4500);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sort, setSort] = useState("popular");
+  const products = useLiveCatalog();
 
   const list = useMemo(() => {
     let out = products.filter(
@@ -58,7 +60,7 @@ function Shop() {
       return b.reviews - a.reviews;
     });
     return out;
-  }, [selected, maxPrice, inStockOnly, query, sort]);
+  }, [products, selected, maxPrice, inStockOnly, query, sort]);
 
   return (
     <>

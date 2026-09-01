@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getAdminDashboard, updateOrderStatus, updateProductAdmin } from "@/lib/admin.functions";
+import { listEnquiries, updateEnquiryStatus } from "@/lib/enquiries.functions";
 import { inr } from "@/data/catalog";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -58,7 +59,21 @@ function Admin() {
   const saveProduct = useServerFn(updateProductAdmin);
   const saveStatus = useServerFn(updateOrderStatus);
 
+  const fetchEnquiries = useServerFn(listEnquiries);
+  const saveEnquiryStatus = useServerFn(updateEnquiryStatus);
+
   const dash = useQuery({ queryKey: ["admin-dashboard"], queryFn: () => fetchDashboard(), retry: false });
+  const leads = useQuery({ queryKey: ["admin-enquiries"], queryFn: () => fetchEnquiries(), retry: false });
+
+  const leadMutation = useMutation({
+    mutationFn: (input: { id: string; status: "new" | "contacted" | "closed" }) =>
+      saveEnquiryStatus({ data: input }),
+    onSuccess: () => {
+      toast.success("Enquiry updated");
+      queryClient.invalidateQueries({ queryKey: ["admin-enquiries"] });
+    },
+    onError: () => toast.error("Could not update enquiry"),
+  });
   const [edits, setEdits] = useState<Record<string, ProductEdit>>({});
 
   const productMutation = useMutation({
@@ -127,6 +142,7 @@ function Admin() {
           <TabsList>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="products">Products & Stock</TabsTrigger>
+            <TabsTrigger value="leads">Leads / Enquiries</TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders" className="py-6">
@@ -247,6 +263,51 @@ function Admin() {
                   </div>
                 );
               })}
+            </div>
+          </TabsContent>
+          <TabsContent value="leads" className="py-6">
+            {leads.isLoading && <p className="text-sm text-muted-foreground">Loading enquiries…</p>}
+            <div className="space-y-3">
+              {leads.data?.map((l) => (
+                <div key={l.id} className="surface-card flex flex-wrap items-start gap-4 p-4">
+                  <div className="min-w-56 flex-1">
+                    <p className="font-medium">
+                      {l.name} · <span className="text-sm font-normal text-muted-foreground">{l.subject}</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      <a href={`mailto:${l.email}`} className="hover:text-accent">
+                        {l.email}
+                      </a>
+                      {l.phone ? ` · ${l.phone}` : ""} ·{" "}
+                      {new Date(l.created_at).toLocaleString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                    <p className="mt-2 whitespace-pre-line text-sm">{l.message}</p>
+                  </div>
+                  <Select
+                    value={l.status}
+                    onValueChange={(v) =>
+                      leadMutation.mutate({ id: l.id, status: v as "new" | "contacted" | "closed" })
+                    }
+                  >
+                    <SelectTrigger className="w-36" aria-label={`Status for enquiry from ${l.name}`}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="new">New</SelectItem>
+                      <SelectItem value="contacted">Contacted</SelectItem>
+                      <SelectItem value="closed">Closed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
+              {leads.data?.length === 0 && (
+                <p className="p-8 text-center text-muted-foreground">No enquiries yet.</p>
+              )}
             </div>
           </TabsContent>
         </Tabs>

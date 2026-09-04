@@ -1,10 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { Leaf, Truck, ShieldCheck, PackageCheck, Star, ArrowRight, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Section, SectionHeading } from "@/components/site/Section";
 import { ProductCard } from "@/components/site/ProductCard";
 import { products, categories, reviews, images } from "@/data/catalog";
+import { submitEnquiry } from "@/lib/enquiries.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({

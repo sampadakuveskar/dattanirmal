@@ -1,10 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { Leaf, Truck, ShieldCheck, PackageCheck, Star, ArrowRight, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Section, SectionHeading } from "@/components/site/Section";
 import { ProductCard } from "@/components/site/ProductCard";
 import { products, categories, reviews, images } from "@/data/catalog";
+import { submitEnquiry } from "@/lib/enquiries.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -44,6 +48,33 @@ const steps = [
 function Home() {
   const mangoes = products.filter((p) => p.type === "mango");
   const kokani = products.filter((p) => p.type === "kokani").slice(0, 4);
+  const [subscribing, setSubscribing] = useState(false);
+  const sendEnquiry = useServerFn(submitEnquiry);
+
+  async function handleSubscribe(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const email = String(new FormData(form).get("email") ?? "").trim();
+    if (!email) return;
+    setSubscribing(true);
+    try {
+      await sendEnquiry({
+        data: {
+          name: email.split("@")[0] || "Subscriber",
+          email,
+          phone: "",
+          subject: "Newsletter subscription",
+          message: "Requested seasonal mango updates from the home page newsletter form.",
+        },
+      });
+      form.reset();
+      toast.success("You're on the list — we'll email you before the season opens.");
+    } catch {
+      toast.error("Could not subscribe right now. Please try again or WhatsApp us on +91 9284821855.");
+    } finally {
+      setSubscribing(false);
+    }
+  }
 
   return (
     <>
@@ -260,22 +291,21 @@ function Home() {
           <p className="mx-auto mt-3 max-w-xl text-sm text-secondary/80">
             Get harvest dates, new products and exclusive offers before the season opens.
           </p>
-          <form
-            className="mx-auto mt-7 flex max-w-md flex-col gap-3 sm:flex-row"
-            onSubmit={(e) => e.preventDefault()}
-          >
+          <form className="mx-auto mt-7 flex max-w-md flex-col gap-3 sm:flex-row" onSubmit={handleSubscribe}>
             <label htmlFor="newsletter" className="sr-only">
               Email address
             </label>
             <Input
               id="newsletter"
+              name="email"
               type="email"
               required
+              maxLength={255}
               placeholder="you@example.com"
               className="bg-card"
             />
-            <Button type="submit" variant="secondary">
-              Subscribe <ArrowRight className="size-4" />
+            <Button type="submit" variant="secondary" disabled={subscribing}>
+              {subscribing ? "Subscribing…" : "Subscribe"} <ArrowRight className="size-4" />
             </Button>
           </form>
         </div>

@@ -48,6 +48,33 @@ const steps = [
 function Home() {
   const mangoes = products.filter((p) => p.type === "mango");
   const kokani = products.filter((p) => p.type === "kokani").slice(0, 4);
+  const [subscribing, setSubscribing] = useState(false);
+  const sendEnquiry = useServerFn(submitEnquiry);
+
+  async function handleSubscribe(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const email = String(new FormData(form).get("email") ?? "").trim();
+    if (!email) return;
+    setSubscribing(true);
+    try {
+      await sendEnquiry({
+        data: {
+          name: email.split("@")[0] || "Subscriber",
+          email,
+          phone: "",
+          subject: "Newsletter subscription",
+          message: "Requested seasonal mango updates from the home page newsletter form.",
+        },
+      });
+      form.reset();
+      toast.success("You're on the list — we'll email you before the season opens.");
+    } catch {
+      toast.error("Could not subscribe right now. Please try again or WhatsApp us on +91 9284821855.");
+    } finally {
+      setSubscribing(false);
+    }
+  }
 
   return (
     <>

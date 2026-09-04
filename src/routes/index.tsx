@@ -291,22 +291,21 @@ function Home() {
           <p className="mx-auto mt-3 max-w-xl text-sm text-secondary/80">
             Get harvest dates, new products and exclusive offers before the season opens.
           </p>
-          <form
-            className="mx-auto mt-7 flex max-w-md flex-col gap-3 sm:flex-row"
-            onSubmit={(e) => e.preventDefault()}
-          >
+          <form className="mx-auto mt-7 flex max-w-md flex-col gap-3 sm:flex-row" onSubmit={handleSubscribe}>
             <label htmlFor="newsletter" className="sr-only">
               Email address
             </label>
             <Input
               id="newsletter"
+              name="email"
               type="email"
               required
+              maxLength={255}
               placeholder="you@example.com"
               className="bg-card"
             />
-            <Button type="submit" variant="secondary">
-              Subscribe <ArrowRight className="size-4" />
+            <Button type="submit" variant="secondary" disabled={subscribing}>
+              {subscribing ? "Subscribing…" : "Subscribe"} <ArrowRight className="size-4" />
             </Button>
           </form>
         </div>

@@ -229,6 +229,38 @@ function Home() {
         </div>
       </Section>
 
+      {/* Coming soon seasonal foods */}
+      <Section>
+        <div className="grid items-center gap-10 lg:grid-cols-2">
+          <div>
+            <SectionHeading
+              eyebrow="Seasonal calendar"
+              title="Coming Soon from Konkan"
+              description="Seasonal foods arrive at different times through the year. We’ll feature the next harvest and new seasonal favourites here as they’re confirmed."
+              align="left"
+            />
+            <p className="mt-4 text-sm text-muted-foreground">
+              Join our updates list to hear when the next products are ready.
+            </p>
+            <Button asChild className="mt-6">
+              <a href="#newsletter">
+                Get seasonal updates <ArrowRight className="size-4" />
+              </a>
+            </Button>
+          </div>
+          <div className="overflow-hidden rounded-2xl border border-border">
+            <img
+              src={images.hero5}
+              alt="Traditional Kokani foods from the Konkan region"
+              loading="lazy"
+              width={1400}
+              height={1000}
+              className="aspect-4/3 w-full object-cover"
+            />
+          </div>
+        </div>
+      </Section>
+
       {/* How it works */}
       <section className="bg-muted/60">
         <div className="container-page py-20">
@@ -246,7 +278,7 @@ function Home() {
       </section>
 
       {/* Reviews */}
-      <Section>
+      <Section id="newsletter">
         <SectionHeading eyebrow="Customer Reviews" title="What our customers say" />
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {reviews.map((r) => (

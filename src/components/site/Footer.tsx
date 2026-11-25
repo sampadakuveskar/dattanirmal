@@ -74,12 +74,13 @@ export function Footer() {
         <div className="container-page flex flex-col gap-3 py-5 text-xs text-secondary-foreground/70 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} DattaNirmal Farms. All rights reserved.</p>
           <p className="flex flex-wrap items-center gap-4">
-            <a href="tel:+919000000000" className="inline-flex items-center gap-1.5">
+            <a href="tel:+919284821855" className="inline-flex items-center gap-1.5">
               <Phone className="size-3.5" /> +91 9284821855
             </a>
             <a href="mailto:shubhamprabhu5909@gmail.com" className="inline-flex items-center gap-1.5">
               <Mail className="size-3.5" /> shubhamprabhu5909@gmail.com
             </a>
+            <span>FSSAI registration number: Pending</span>
           </p>
         </div>
       </div>

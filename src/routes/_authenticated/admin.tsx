@@ -18,6 +18,12 @@ import {
 } from "@/components/ui/select";
 import { getAdminDashboard, updateOrderStatus, updateProductAdmin } from "@/lib/admin.functions";
 import { listEnquiries, updateEnquiryStatus } from "@/lib/enquiries.functions";
+import {
+  deleteSeasonalAnnouncement,
+  listSeasonalAnnouncementsAdmin,
+  saveSeasonalAnnouncement,
+} from "@/lib/seasonal-announcements.functions";
+import { Textarea } from "@/components/ui/textarea";
 import { inr } from "@/data/catalog";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -52,6 +58,13 @@ const statusLabels: Record<string, string> = {
 };
 
 type ProductEdit = { price: number; stock: number; isActive: boolean };
+type AnnouncementDraft = { name: string; description: string; expectedMonth: string; isPublished: boolean };
+const emptyAnnouncement: AnnouncementDraft = {
+  name: "",
+  description: "",
+  expectedMonth: "",
+  isPublished: true,
+};
 
 function Admin() {
   const queryClient = useQueryClient();
@@ -61,9 +74,19 @@ function Admin() {
 
   const fetchEnquiries = useServerFn(listEnquiries);
   const saveEnquiryStatus = useServerFn(updateEnquiryStatus);
+  const fetchSeasonalAnnouncements = useServerFn(listSeasonalAnnouncementsAdmin);
+  const saveSeasonalAnnouncementFn = useServerFn(saveSeasonalAnnouncement);
+  const deleteSeasonalAnnouncementFn = useServerFn(deleteSeasonalAnnouncement);
 
   const dash = useQuery({ queryKey: ["admin-dashboard"], queryFn: () => fetchDashboard(), retry: false });
   const leads = useQuery({ queryKey: ["admin-enquiries"], queryFn: () => fetchEnquiries(), retry: false });
+  const seasonalAnnouncements = useQuery({
+    queryKey: ["admin-seasonal-announcements"],
+    queryFn: () => fetchSeasonalAnnouncements(),
+    retry: false,
+  });
+  const [announcementDraft, setAnnouncementDraft] = useState<AnnouncementDraft>(emptyAnnouncement);
+  const [editingAnnouncementId, setEditingAnnouncementId] = useState<string | null>(null);
 
   const leadMutation = useMutation({
     mutationFn: (input: { id: string; status: "new" | "contacted" | "closed" }) =>
@@ -93,6 +116,37 @@ function Admin() {
     },
     onError: () => toast.error("Could not update order"),
   });
+
+  const seasonalMutation = useMutation({
+    mutationFn: (input: AnnouncementDraft & { id?: string }) =>
+      saveSeasonalAnnouncementFn({ data: input }),
+    onSuccess: () => {
+      toast.success(editingAnnouncementId ? "Upcoming product updated" : "Upcoming product added");
+      setAnnouncementDraft(emptyAnnouncement);
+      setEditingAnnouncementId(null);
+      queryClient.invalidateQueries({ queryKey: ["admin-seasonal-announcements"] });
+      queryClient.invalidateQueries({ queryKey: ["published-seasonal-announcements"] });
+    },
+    onError: () => toast.error("Could not save upcoming product"),
+  });
+
+  const removeSeasonalMutation = useMutation({
+    mutationFn: (id: string) => deleteSeasonalAnnouncementFn({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Upcoming product removed");
+      queryClient.invalidateQueries({ queryKey: ["admin-seasonal-announcements"] });
+      queryClient.invalidateQueries({ queryKey: ["published-seasonal-announcements"] });
+    },
+    onError: () => toast.error("Could not remove upcoming product"),
+  });
+
+  function submitSeasonalAnnouncement(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const draft = { ...announcementDraft };
+    seasonalMutation.mutate(
+      editingAnnouncementId ? { id: editingAnnouncementId, ...draft } : draft,
+    );
+  }
 
   if (dash.isError) {
     return (
@@ -142,6 +196,7 @@ function Admin() {
           <TabsList>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="products">Products & Stock</TabsTrigger>
+            <TabsTrigger value="seasonal">Coming Soon</TabsTrigger>
             <TabsTrigger value="leads">Leads / Enquiries</TabsTrigger>
           </TabsList>
 
@@ -263,6 +318,164 @@ function Admin() {
                   </div>
                 );
               })}
+            </div>
+          </TabsContent>
+          <TabsContent value="seasonal" className="py-6">
+            <div className="grid items-start gap-8 lg:grid-cols-[minmax(17rem,0.85fr)_minmax(0,1.15fr)]">
+              <form className="surface-card space-y-4 p-5" onSubmit={submitSeasonalAnnouncement}>
+                <div>
+                  <h2 className="font-serif text-xl">
+                    {editingAnnouncementId ? "Edit upcoming product" : "Add upcoming product"}
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    These announcements are separate from products available to purchase.
+                  </p>
+                </div>
+                <label className="block space-y-1.5 text-sm font-medium">
+                  Product name
+                  <Input
+                    required
+                    maxLength={120}
+                    value={announcementDraft.name}
+                    onChange={(event) =>
+                      setAnnouncementDraft((draft) => ({ ...draft, name: event.target.value }))
+                    }
+                  />
+                </label>
+                <label className="block space-y-1.5 text-sm font-medium">
+                  Short description
+                  <Textarea
+                    required
+                    maxLength={500}
+                    rows={3}
+                    value={announcementDraft.description}
+                    onChange={(event) =>
+                      setAnnouncementDraft((draft) => ({ ...draft, description: event.target.value }))
+                    }
+                  />
+                </label>
+                <label className="block space-y-1.5 text-sm font-medium">
+                  Expected month
+                  <Input
+                    required
+                    maxLength={60}
+                    placeholder="For example, April 2027"
+                    value={announcementDraft.expectedMonth}
+                    onChange={(event) =>
+                      setAnnouncementDraft((draft) => ({ ...draft, expectedMonth: event.target.value }))
+                    }
+                  />
+                </label>
+                <label className="flex items-center justify-between gap-4 text-sm">
+                  Show this announcement on the homepage
+                  <Switch
+                    checked={announcementDraft.isPublished}
+                    onCheckedChange={(isPublished) =>
+                      setAnnouncementDraft((draft) => ({ ...draft, isPublished }))
+                    }
+                    aria-label="Show this announcement on the homepage"
+                  />
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="submit" disabled={seasonalMutation.isPending}>
+                    {seasonalMutation.isPending
+                      ? "Saving…"
+                      : editingAnnouncementId
+                        ? "Save changes"
+                        : "Add announcement"}
+                  </Button>
+                  {editingAnnouncementId && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setEditingAnnouncementId(null);
+                        setAnnouncementDraft(emptyAnnouncement);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                </div>
+              </form>
+
+              <div className="space-y-3">
+                {seasonalAnnouncements.isLoading && (
+                  <p className="text-sm text-muted-foreground">Loading upcoming products…</p>
+                )}
+                {seasonalAnnouncements.isError && (
+                  <p className="text-sm text-destructive">Could not load upcoming products.</p>
+                )}
+                {seasonalAnnouncements.data?.map((announcement) => (
+                  <article key={announcement.id} className="surface-card flex flex-wrap items-start gap-4 p-4">
+                    <div className="min-w-48 flex-1">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <h3 className="font-medium">{announcement.name}</h3>
+                        <span className="text-xs text-muted-foreground">
+                          {announcement.is_published ? "Visible on homepage" : "Hidden"}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">Expected {announcement.expected_month}</p>
+                      <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
+                        {announcement.description}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setEditingAnnouncementId(announcement.id);
+                          setAnnouncementDraft({
+                            name: announcement.name,
+                            description: announcement.description,
+                            expectedMonth: announcement.expected_month,
+                            isPublished: announcement.is_published,
+                          });
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        disabled={seasonalMutation.isPending}
+                        onClick={() =>
+                          seasonalMutation.mutate({
+                            id: announcement.id,
+                            name: announcement.name,
+                            description: announcement.description,
+                            expectedMonth: announcement.expected_month,
+                            isPublished: !announcement.is_published,
+                          })
+                        }
+                      >
+                        {announcement.is_published ? "Hide" : "Show"}
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="destructive"
+                        disabled={removeSeasonalMutation.isPending}
+                        onClick={() => {
+                          if (window.confirm(`Remove ${announcement.name} from upcoming products?`)) {
+                            removeSeasonalMutation.mutate(announcement.id);
+                          }
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </article>
+                ))}
+                {seasonalAnnouncements.data?.length === 0 && (
+                  <p className="p-6 text-center text-sm text-muted-foreground">
+                    No upcoming products yet. Add one here when you have details to share.
+                  </p>
+                )}
+              </div>
             </div>
           </TabsContent>
           <TabsContent value="leads" className="py-6">

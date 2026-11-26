@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -9,6 +10,7 @@ import { Section, SectionHeading } from "@/components/site/Section";
 import { ProductCard } from "@/components/site/ProductCard";
 import { products, categories, reviews, images } from "@/data/catalog";
 import { submitEnquiry } from "@/lib/enquiries.functions";
+import { listPublishedSeasonalAnnouncements } from "@/lib/seasonal-announcements.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -50,6 +52,12 @@ function Home() {
   const kokani = products.filter((p) => p.type === "kokani").slice(0, 4);
   const [subscribing, setSubscribing] = useState(false);
   const sendEnquiry = useServerFn(submitEnquiry);
+  const fetchSeasonalAnnouncements = useServerFn(listPublishedSeasonalAnnouncements);
+  const seasonalAnnouncements = useQuery({
+    queryKey: ["published-seasonal-announcements"],
+    queryFn: () => fetchSeasonalAnnouncements(),
+    staleTime: 60_000,
+  });
 
   async function handleSubscribe(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -236,7 +244,7 @@ function Home() {
             <SectionHeading
               eyebrow="Seasonal calendar"
               title="Coming Soon from Konkan"
-              description="Seasonal foods arrive at different times through the year. We’ll feature the next harvest and new seasonal favourites here as they’re confirmed."
+              description="A look at the seasonal foods and harvests we’re preparing from across Konkan."
               align="left"
             />
             <p className="mt-4 text-sm text-muted-foreground">
@@ -247,6 +255,30 @@ function Home() {
                 Get seasonal updates <ArrowRight className="size-4" />
               </a>
             </Button>
+            <div className="mt-8 space-y-3" aria-live="polite">
+              {seasonalAnnouncements.isLoading && (
+                <p className="text-sm text-muted-foreground">Loading seasonal announcements…</p>
+              )}
+              {seasonalAnnouncements.isError && (
+                <p className="text-sm text-muted-foreground">
+                  Seasonal announcements are temporarily unavailable. Please check back soon.
+                </p>
+              )}
+              {seasonalAnnouncements.data?.map((announcement) => (
+                <article key={announcement.id} className="surface-card p-5">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-accent">
+                    Expected {announcement.expected_month}
+                  </p>
+                  <h3 className="mt-2 text-xl font-semibold">{announcement.name}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{announcement.description}</p>
+                </article>
+              ))}
+              {seasonalAnnouncements.data?.length === 0 && (
+                <p className="surface-card p-5 text-sm text-muted-foreground">
+                  Our next seasonal products will be announced here soon.
+                </p>
+              )}
+            </div>
           </div>
           <div className="overflow-hidden rounded-2xl border border-border">
             <img

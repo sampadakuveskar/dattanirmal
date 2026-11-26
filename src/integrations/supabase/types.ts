@@ -214,6 +214,36 @@ export type Database = {
         }
         Relationships: []
       }
+      seasonal_announcements: {
+        Row: {
+          created_at: string
+          description: string
+          expected_month: string
+          id: string
+          is_published: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          expected_month?: string
+          id?: string
+          is_published?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          expected_month?: string
+          id?: string
+          is_published?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

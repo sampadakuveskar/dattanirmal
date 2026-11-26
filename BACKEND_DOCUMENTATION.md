@@ -58,6 +58,7 @@ Both already have the `admin` role. Each logs in with their own email and passwo
 | **orders** | One row per order: customer details, address, delivery + payment method, amounts, status | The customer who placed it, and admins |
 | **order_items** | The individual products inside each order | Same as the parent order |
 | **enquiries** | Contact-form leads: name, email, phone, subject, message, status, date | Admins only (anyone may submit) |
+| **seasonal_announcements** | Upcoming food name, description, expected month, and whether it is shown on the homepage | Everyone can read published items; admins manage all items |
 
 Every table has **Row Level Security** on, meaning the database itself refuses to hand data to
 someone who isn't allowed to see it.
@@ -91,12 +92,14 @@ Shipping rule: Express = ₹350. Standard = ₹120, free above ₹2,500.
 
 ### The easy way — the Admin Dashboard
 
-Go to **/admin** (sign in first). Three tabs:
+Go to **/admin** (sign in first). Four tabs:
 
 - **Orders** — every order, newest first, with customer name, contact, address, items and total.
   Change the status from the dropdown; the customer's tracking view updates immediately.
 - **Products** — edit live price and stock, and switch a product on/off. Changes appear on the shop
   and product pages straight away.
+- **Coming Soon** — add, edit, show/hide, or remove seasonal food announcements. These are kept
+  separate from purchasable products, so they do not affect prices, stock, carts, or orders.
 - **Leads / Enquiries** — every contact-form submission with name, email, phone, message and date.
   Mark each one `new` → `contacted` → `closed`.
 
